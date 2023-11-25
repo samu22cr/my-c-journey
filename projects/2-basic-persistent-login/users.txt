@@ -1,0 +1,7 @@
+blue 123
+red password
+green not-password
+yellow secret
+purple hashed-password
+maria 123
+jose 123
