@@ -3,7 +3,7 @@
 
 int my_strlen(char *s) {
 	int count = 0;
-	while(s[count] != '\0') {
+	while(s[count] != '\0') { // single quotes for single char
 		count++;
 	}
 	return count;
@@ -11,16 +11,35 @@ int my_strlen(char *s) {
 
 int main(void) {
 
-	// string-termination---------------------------------------------------------
+	// copying-a-string----------------------------------------------------------
 
+	//char s[] = "Hello, world!";
+	//char t[100];  // Each char is one byte, so plenty of room
+	//strcpy(t, s);	// This makes a copy of the string!
+	//t[0] = 'z';// We modify t
+	//// And s remains unaffected because it's a different string
+	//printf("%s\n", s);  // "Hello, world!"
+	//// But t has been changed
+	//printf("%s\n", t);  // "zello, world!"
+
+	//char s[] = "Hello, world!";
+	//char *t;
+	//t = s; // This makes a copy of the pointer, not a copy of the string!
+	//t[0] = 'z'; // We modify t
+	//// But printing s shows the modification!
+	//// Because t and s point to the same string!
+	//printf("%s\n", s);  // "zello, world!"
+
+
+
+
+	// string-termination---------------------------------------------------------
 	// last byte of string in C is called "terminator byte". It's also called
 	// zero-valued byte or NUL character. Can be written in C code as \0
-
 	// When you include a string in double quotes in your code,
  	// the NUL character is automatically, implicitly included.
-	
-	char *example_string = "this is a string";
-	printf("length is %d\n", my_strlen(example_string));
+	//char *example_string = "this is a string";
+	//printf("length is %d\n", my_strlen(example_string));
 
 
 

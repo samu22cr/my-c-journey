@@ -5,23 +5,27 @@ void increment(int *p);
 
 int main(void) {
 
+	int i = 123;
+	int *p = &i;
+	printf("%p\n", (void *)p);
+
 	//sizeof and pointers--------------------------------------------
-	int *p;
-
-	// Prints size of an 'int'
-	printf("%zu\n", sizeof(int));
-
-	// p is type 'int *', so prints size of 'int*'
-	printf("%zu\n", sizeof p);
-
-	// *p is type 'int', so prints size of 'int'
-	printf("%zu\n", sizeof *p);
-
-
-	// declaring pointers--------------------------------------------
-	int a, *b; // a is int and b is int-pointer
-	int* c, d; // c is pointer to int and d is just a regular int
-	int *e, *f; // both e and f are int-pointers
+	//int *p;
+//
+	//// Prints size of an 'int'
+	//printf("%zu\n", sizeof(int));
+//
+	//// p is type 'int *', so prints size of 'int*'
+	//printf("%zu\n", sizeof p);
+//
+	//// *p is type 'int', so prints size of 'int'
+	//printf("%zu\n", sizeof *p);
+//
+//
+	//// declaring pointers--------------------------------------------
+	//int a, *b; // a is int and b is int-pointer
+	//int* c, d; // c is pointer to int and d is just a regular int
+	//int *e, *f; // both e and f are int-pointers
 
 
 	// the NULL pointer---------------------------------------------
