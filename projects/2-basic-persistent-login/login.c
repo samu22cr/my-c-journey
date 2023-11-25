@@ -90,8 +90,8 @@ int main(void) {
 	
 	bool prompting = true;
 	bool session  = false; // 0 = unauthenticated, 1 = authenticated	
-
 	print_home_menu();
+
 	while(prompting) {
 
 		int mode;
