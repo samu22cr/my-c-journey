@@ -5,3 +5,4 @@ yellow secret
 purple hashed-password
 maria 123
 jose 123
+luis 123

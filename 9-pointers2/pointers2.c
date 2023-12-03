@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include <string.h>
 
 int my_str_len_ptr_arithmetics(char *first_index) {
 	// *_index of memory, if we see memory as a big array of bytes
@@ -13,21 +14,51 @@ int my_str_len_ptr_arithmetics(char *first_index) {
 }
 
 
+void *my_memcpy(void* dest, void* src, int byte_count) {
+
+	// conver void*s to char*s
+	char *s = src, *d = dest;
+	
+	// now that we have char*, we can dereference and copy them
+	while(byte_count--) {
+		*d++ =  *s++;
+	}
+
+	// Most of these functions return the destination, just in case
+	// that's useful to the caller.
+	return dest;
+}
+
+
 int main(void) {
 
 	// void pointers----------------------------------------------------------
 
 	// void pointer = a pointer to a thing that you don’t know the type of.
 
+	//char s[] = "Goats!";
+	//char t[100];
+	//memcpy(t, s, 7);  // Copy 7 bytes--including the NUL terminator!
+	//printf("%s\n", t);  // "Goats!"	
+	//int a[] = {11, 22, 33};
+	//int b[3];
+	//memcpy(b, a, 3 * sizeof(int));  // Copy 3 ints of data
+	//printf("%d\n", b[0]);  // 11
+	//printf("%d\n", b[1]);  // 22
+	//printf("%d\n", b[2]);  // 33
+	//memcpy(&my_clone_antelope, &my_antelope, sizeof my_antelope);
 
-
+	//char a = 'X';
+	//void *p = &a;
+	//char *q = p;
+	//printf("%c\n", *p); // ERROR--cannot dereference void*!
+	//printf("%c\n", *q); //prints 'X'
 
 
 	// array/pointer-equivalence----------------------------------------------------------
 
 	// a[b] == *(a + b) or E1[E2] is identical to (* ( (E1) + (E2) ) )
 	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 	// array-pointer-equivalence IN FUNCTION CALLS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// If you have a function that takes a pointer argument, e.g.:
 	// this means you can pass either an array or a pointer to this function and have it work!
@@ -67,7 +98,7 @@ int main(void) {
 	// pointer-arithmetic---------------------------------------------------------
 
 	// SUBSTRACTING POINTERS
-	printf("%d\n", my_str_len_ptr_arithmetics("Hello, world!")); // prints "13"
+	//printf("%d\n", my_str_len_ptr_arithmetics("Hello, world!")); // prints "13"
 	// Remember that you can only use pointer
 	// subtraction between two pointers that point to the same array!
 
