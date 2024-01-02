@@ -72,7 +72,7 @@ int main(void) {
 
 
 	// EOF(End of File)-------------------------------------------------
-	
+
 	// There is a special character defined as a macro: EOF.
 	// This is what fgetc() will return when the end of the
 	// file has been reached and you’ve attempted to read another character. 
