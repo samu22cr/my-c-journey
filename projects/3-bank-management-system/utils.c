@@ -9,9 +9,7 @@
 /*
 *
 * returns:
-* 	- true if success assiging &char
-* 	- false if mf hasn't entered valid opt OR
-* 	if reached EOF (aka mf presses enter key)
+* 	- a pointer to the recently assigned buff
 *
 */
 wchar_t* prompt_wchar(wchar_t *buff, int size) {
