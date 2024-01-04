@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <errno.h>
 #include <wchar.h>
@@ -25,11 +26,29 @@ wchar_t* prompt_wchar(wchar_t *buff, int size) {
 			log_warning(L"Some error ocurrend while reading input\n");
 		}
 	} 
+	// this removes \n for the tmp buffer
+	// 	- this happens cause cause fgetws() 
+	// 	func reads from current stream position
+	// 	TO AND INCLUDING the FIRST NEW LINE CHAR,
+	//
+	//	As a result wcslen(wchar_t[] - 1)
+	//	is a newline character (LN, CR, 
+	//	LNCR, etc..).
+	//
+	//	- wchar_t end if a NUL WIDE CHAR(\0)
+	//	so above \n can't be last)
+	//	
+	//
+	tmpbuff[wcslen(tmpbuff) - 1] = L'\0';
+	//wprintf(L"%ls", tmpbuff);
 	return tmpbuff;
 }
 
 /*
-*
+* Description:
+* 	- Prompts from an integer value
+* 	from stdin and assigns it to the pointer
+* 	passed as arg
 * returns:
 * 	- true if success assiging &opt
 * 	- false if mf hasn't entered valid opt OR

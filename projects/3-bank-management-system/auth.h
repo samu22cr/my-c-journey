@@ -1,8 +1,15 @@
-
+#include <stdbool.h>
 
 #ifndef AUTH_H
 #define AUTH_H
 
-void register_account(void);
+typedef struct {
+	wchar_t *email;
+	wchar_t *password;
+	float balance;
+} Account;
+
+bool register_account(Account *acc);
+void clear_account(Account *acc);
 
 #endif 

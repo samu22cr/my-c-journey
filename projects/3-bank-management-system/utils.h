@@ -5,6 +5,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+//wchar_t* prompt_wchar(int);
 wchar_t* prompt_wchar(wchar_t*, int);
 bool prompt_option(int*);
 
