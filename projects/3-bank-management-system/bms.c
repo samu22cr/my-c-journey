@@ -8,7 +8,7 @@
 
 #include "log.h"
 #include "utils.h"
-#include "auth.h"
+#include "account.h"
 
 /*
  * 
@@ -36,8 +36,8 @@ static void menu_landing(void) {
 	wprintf(L"Welcome to BMS (bank management system)\n");
 	wprintf(L"-1.Help		---	print this menu\n");
 	wprintf(L"0.Exit		---	leave this program\n");
-	wprintf(L"1.Log in	---	log into your existing account\n");
-	wprintf(L"2.Register	---	create a new account\n");
+	wprintf(L"1.Log in		---	log into your existing account\n");
+	wprintf(L"2.Register		---	create a new account and log in\n");
 }
 
 static void menu_logged(Account *acc) {
@@ -58,12 +58,7 @@ int main(void)  {
 
 	menu_landing();
 	bool session = false;
-
-	Account crrnt_acc = {
-		.email = NULL,
-		.password = NULL,
-		.balance = 0.0,
-	};
+	Account crrnt_acc;
 
 	while (true) {
 
@@ -74,32 +69,27 @@ int main(void)  {
 		}
 
 		if (session) {
-			wprintf(L"-1.Help		---	print this menu\n");
-			wprintf(L"0.Exit and log out	---	leave this program\n");
-			wprintf(L"1.Log out		---	end this session\n");
-			wprintf(L"2.Transfer money 	---	transference\n");
-			wprintf(L"3.Check balance 	---	money money money\n");
+
 			switch (opt) {
 				case -1:
-					// help
 					menu_logged(&crrnt_acc);
 					break;
 				case 0:
-					// exit + log out
-					clear_account(&crrnt_acc); // necessary???
+					acc_clear (&crrnt_acc); // necessary???
 					wprintf(L"Bye bye...\n");
-					exit(0);
+					exit(EXIT_FAILURE);
 					break;
 				case 1:
-					// just log out
-					clear_account(&crrnt_acc);
-					session = false
+					acc_clear(&crrnt_acc);
+					session = false;
+					menu_landing();
 					break;
 				case 2:
 					// transfer money
+					acc_transfer(&crrnt_acc);
 					break;
 				case 3:
-					// check balance money
+					wprintf(L"Balance: $%.2f\n", crrnt_acc.balance);
 					break;
 				default:
 					log_warning(L"Invalid option number!\n");
@@ -112,13 +102,13 @@ int main(void)  {
 					break;
 				case 0:
 					wprintf(L"Bye bye...\n");
-					exit(0);
+					exit(EXIT_FAILURE);
 					break;
 				case 1:
-					wprintf(L"on LOGIN\n");
+					session = acc_login();
 					break;
 				case 2:
-					session = register_account(&crrnt_acc);
+					session = acc_register(&crrnt_acc);
 					menu_logged(&crrnt_acc);
 					break;
 				default:

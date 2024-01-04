@@ -7,6 +7,31 @@
 
 #include "log.h"
 
+
+
+/*
+*
+* returns true if the wcs argument is
+* fully blank
+*
+*/
+bool iswsblank(wchar_t *wcs) {
+
+	bool fully_blank = true;
+
+	if(wcs[0] == L'\0') {
+		return fully_blank;
+	}
+
+	for (int i = 0; i <= wcslen(wcs) - 1; i++) {
+		if (!iswblank(wcs[i])) {
+			fully_blank = false;
+		}
+	}
+	return fully_blank;
+}
+
+
 /*
 *
 * returns:
