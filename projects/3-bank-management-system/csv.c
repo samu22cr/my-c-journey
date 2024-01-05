@@ -23,18 +23,18 @@ int csv_count_accs() {
 	int line = 0;
 	int num_accs = 0;
 	while (fgetws(fbuff, sizeof fbuff, accounts) != NULL) {
-
 		if (line > 0) {
 			num_accs++;
 		}
 		line++;
-
 	}
 	if (errno == EILSEQ) {
 		log_error(L"Invalid character encounterd in .csv file\n");
+		fclose(accounts);
 		return -1;
 	} else if (ferror(accounts)) {
 		log_error(L"Had trouble reading accounts.csv file\n");
+		fclose(accounts);
 		return  -1;
 	}
 	fclose(accounts);
@@ -68,8 +68,6 @@ Account* csv_get_accs(Account accs[], int size) {
 			wchar_t *sep = L",";
 			wchar_t *token = wcstok(fbuff, sep, &state_tkzr);
 
-			//wprintf(L"TOKENS: \n");
-			
 			int field_count = 0;
 			while(token != NULL) {
 
@@ -90,6 +88,7 @@ Account* csv_get_accs(Account accs[], int size) {
 						float balance = wcstof(token, NULL);
 						if (errno == ERANGE) {
 							log_error(L"Balance value is to big to convert, sorry!\n");
+							fclose(accounts);
 							return NULL;
 							break;
 						}
@@ -110,16 +109,124 @@ Account* csv_get_accs(Account accs[], int size) {
 
 	if (errno == EILSEQ) {
 		log_error(L"Invalid character encounterd.\n");
+		fclose(accounts);
 		return NULL;
 	}
 	else if (ferror(accounts)) {
 		log_error(L"Had trouble reading accounts.csv file\n");
+		fclose(accounts);
 		return NULL;
 	}
 	fclose(accounts);
 	return accs;
 }
 
+/*
+*
+* Description: create and persists account
+* if not exists or update if already exists
+*
+* returns 
+* 	- on success: address of accs
+* 	- on error: NULL
+* */
+Account* csv_save_acc(Account *acc) {
+
+	if (acc_exists_by_email(acc->email)) {
+
+		// update csv
+		// 1. First find in which line of file is acc located
+		// 2. Then replace that whole line
+		// 3. Finally close file and return ptr to passed acc arg
+		// to indicate success
+
+		wchar_t fbuff[50]; 
+		FILE *accounts;
+		accounts = fopen("accounts.csv", "a+");
+		errno = 0;
+		int crrnt_line = 0; 
+		bool found = false;
+		while (fgetws(fbuff, sizeof fbuff, accounts) != NULL && !found) {
+
+			if (crrnt_line > 0 ) {
+			// ^^^so we don't read first line which has column names
+				wchar_t * state_tkzr;
+				wchar_t *sep = L",";
+				wchar_t *token = wcstok(fbuff, sep, &state_tkzr);
+				int field_count = 0;
+				while(token != NULL) {
+					switch (field_count) {
+						case 0:
+							wprintf(L"Chekinf if [%ls] matches with [%ls]\n", token, acc->email);
+							bool matches = wcscmp(acc->email, token) == 0;
+							if (matches) {
+								found = true;
+								int appnd_rs = fwprintf(
+									accounts, 
+									L"%ls,%ls,%.2f,\n",
+									acc->email, acc->password, acc->balance
+								);
+								if(appnd_rs < 0) {
+									log_error(L"Couldn't write data to accounts file\n");
+									fclose(accounts);
+									return NULL;
+								}
+							}
+							break;
+						case 1:
+							break;
+						case 2:
+							break;
+						default: 
+							break;
+					}
+					field_count++;
+					token = wcstok(NULL, sep, &state_tkzr);
+				}
+			} 
+			crrnt_line++; 
+
+		}
+		if (errno == EILSEQ) {
+			log_error(L"Invalid character encounterd.\n");
+			fclose(accounts);
+			return NULL;
+		}
+		else if (ferror(accounts)) {
+			log_error(L"Had trouble reading accounts.csv file\n");
+			fclose(accounts);
+			return NULL;
+		}
+		if (!found) {
+			log_error(L"Couldn't found account, though it was previously found...\n");
+			fclose(accounts);
+			return NULL;
+		}
+		fclose(accounts);
+		return acc;
+	} else {
+		// append to file
+		FILE *accounts;
+		accounts = fopen("accounts.csv", "a");
+		if (accounts == NULL) {
+			log_error(L"Couldn't open accounts file\n");
+			return NULL;
+		}
+		errno = 0;
+		int appnd_rs = fwprintf(
+			accounts, 
+			L"%ls,%ls,%.2f,\n",
+			acc->email, acc->password, acc->balance
+		);
+		if(appnd_rs < 0) {
+			log_error(L"Couldn't write data to accounts file\n");
+			fclose(accounts);
+			return NULL;
+		}
+		fclose(accounts);
+		return acc;
+	}
+}
 
 
 

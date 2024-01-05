@@ -19,13 +19,13 @@
  * 		to make persistence more flexible;
  *
  *	- Features:
- *		- Login Functionality 
+ *		- Login Functionality -> DONE
  *			- credentials not stored securely btw
  *		- Account management
- *			- Create account
- *			- Delete account
- *		- Able to transfer money to accounts 
- *		- Check credit and debit amounts of money
+ *			- Create account -> DONE
+ *			- Delete account -> PENDING
+ *		- Able to transfer money to accounts -> ON_IT
+ *		- Check balance of account -> DONE
  *				
  * */
 
@@ -34,20 +34,21 @@
 static void menu_landing(void) {
 	wprintf(L"------------------------------------------------------\n");
 	wprintf(L"Welcome to BMS (bank management system)\n");
-	wprintf(L"-1.Help		---	print this menu\n");
-	wprintf(L"0.Exit		---	leave this program\n");
-	wprintf(L"1.Log in		---	log into your existing account\n");
-	wprintf(L"2.Register		---	create a new account and log in\n");
+	wprintf(L"-1.Help\n");
+	wprintf(L" 0.Exit\n");
+	wprintf(L" 1.Log in\n");
+	wprintf(L" 2.Register\n");
 }
 
 static void menu_logged(Account *acc) {
 	wprintf(L"------------------------------------------------------\n");
 	wprintf(L"Welcome (logged as %ls) \n", acc->email);
-	wprintf(L"-1.Help		---	print this menu\n");
-	wprintf(L"0.Exit		---	leave this program\n");
-	wprintf(L"1.Log out		---	end this session\n");
-	wprintf(L"2.Transfer		---	transference\n");
-	wprintf(L"3.Balance 		---	check your balance\n");
+	wprintf(L"-1.Help\n");
+	wprintf(L" 0.Exit\n");
+	wprintf(L" 1.Log out\n");
+	wprintf(L" 2.Transfer\n");
+	wprintf(L" 3.Check Balance\n");
+	wprintf(L" 4.View Accounts\n");
 }
 
 
@@ -78,12 +79,12 @@ int main(void)  {
 					exit(EXIT_FAILURE);
 					break;
 				case 1:
-					acc_logout(&crrnt_acc);
+					acc_clear(&crrnt_acc); // necessary???
+					wprintf(L"Bye bye...\n");
 					session = false;
 					menu_landing();
 					break;
 				case 2:
-					// transfer money
 					acc_transfer(&crrnt_acc);
 					break;
 				case 3:
@@ -112,6 +113,8 @@ int main(void)  {
 					session = acc_register(&crrnt_acc);
 					if (session) {
 						menu_logged(&crrnt_acc);
+					} else {
+						menu_landing();
 					}
 					break;
 				default:

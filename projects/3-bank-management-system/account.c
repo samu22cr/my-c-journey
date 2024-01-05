@@ -5,6 +5,8 @@
 #include <errno.h>
 #include <wchar.h>
 #include <wctype.h>
+#include <wctype.h>
+#include <string.h>
 
 #include "utils.h"
 #include "log.h"
@@ -25,76 +27,157 @@ void acc_clear(Account *acc) {
 	acc->balance = 0.0;
 }
 
-void acc_transfer(Account *acc) {
-	wprintf(L"------------------------------------------------------\n");
-	wprintf(L"Transfer Money\n");
+
+/*
+* returns true if account exists in CSV file, false otherwise
+*
+* */
+bool acc_exists_by_email(wchar_t *email) {
+
+	bool exists = false;
+	int num_accs = csv_count_accs();
+
+	if (num_accs == -1) {
+		log_error(L"You can't access data right now, try later...\n");
+		return exists;
+	}
+
+	Account accs[num_accs];
+	Account *rs_get = csv_get_accs(accs, num_accs);
+	if (rs_get == NULL) {
+		log_error(L"Couldn't read accounts data\n");
+		return exists;
+	}
+
+	for (int i = 0; i < num_accs; i++) {
+		Account iter_acc = accs[i];
+		bool email_exists = wcscmp(iter_acc.email, email) == 0;
+		if (email_exists) {
+			exists = true;
+			break;
+		}
+	}
+	return exists;
 }
 
 /*
-*
-* Sets Account credentials to valid input
+ * Finds account struct by email from csv and if found,
+ * assigns fields from csv to passed struct pointer (acc)
+* returns 
+* 	- if found: pointer of desired account
+* 	- if not found: NULL
 *
 * */
-static void acc_prompt_credentials(Account *acc) {
+static Account* acc_find_by_email(wchar_t* email, Account *acc) {
 
-	bool valid_email = false;
-	bool valid_pass = false;
-	while(true) {
+	int num_accs = csv_count_accs();
+	if (num_accs == -1) {
+		log_error(L"You can't access data right now, try later...\n");
+		return NULL;
+	}
 
-		if (!valid_email) {
+	Account accs[num_accs];
+	Account *rs_get = csv_get_accs(accs, num_accs);
+	if (rs_get == NULL) {
+		log_error(L"Couldn't read accounts data\n");
+		return NULL;;
+	}
 
-			do { wprintf(L"Email: "); }
-			while (prompt_wchar(acc->email, ACC_EMAIL_SIZE) == NULL );
-
-			if (wcschr(acc->email, L',') != NULL) {
-				log_warning(L"Email can't contain commas(,), try again...\n");
-				continue;
-			} 
-			else if (iswsblank(acc->email)) {
-				log_warning(L"Email can't be blank, try again...\n");
-				continue;
-			} 
-			else {
-				valid_email = true;
-			}
-		}
-
-		if(!valid_pass) {
-
-			do { wprintf(L"Password: "); }
-			while (prompt_wchar(acc->password, ACC_PASSWORD_SIZE) == NULL );
-
-			if (wcschr(acc->password, L',') != NULL) {
-				log_warning(L"Password can't contain commas(,), try again...\n");
-				continue;
-			}
-			else if (iswsblank(acc->password)) {
-				log_warning(L"Password can't be blank, try again...\n");
-				continue;
-			}
-			else {
-				valid_pass = true;
-				break;
-			}
+	for (int i = 0; i < num_accs; i++) {
+		Account iter_acc = accs[i];
+		bool matches = wcscmp(iter_acc.email, email) == 0;
+		if (matches) {
+			wcsncpy(acc->email, iter_acc.email, ACC_EMAIL_SIZE);
+			wcsncpy(acc->password, iter_acc.password, ACC_PASSWORD_SIZE); //INSECURE AS HELL
+			memcpy(&acc->balance, &iter_acc.balance, sizeof(float));
+			return acc; // returning a POINTER to the passed arg
 		}
 	}
+	return NULL;
 }
 
-void acc_logout(Account *crrnt_acc) {
-	free(crrnt_acc.balance); // previously dynamically allocated on acc_login() func
-	acc_clear(crrnt_acc); // necessary???
-	wprintf(L"Bye bye...\n");
+
+/*
+*
+* Transfers money from one account to another
+*
+* */
+void acc_transfer(Account *src_acc) {
+	wprintf(L"------------------------------------------------------\n");
+	wprintf(L"Transfer Money\n");
+
+	wchar_t dst_email[ACC_EMAIL_SIZE];
+	Account dst_acc;
+	while (true) {
+		prompt_storable_input(dst_email, ACC_EMAIL_SIZE, L"Destinaton account (email)");
+		if (acc_find_by_email(dst_email, &dst_acc) != NULL) {
+			break;
+		} else {
+			log_warning(L"Account doesn't exist\n");
+			continue;
+		}
+	}
+
+	wchar_t buff_amount[50];
+	wprintf(L"Your current balance %.2f\n", src_acc->balance);
+	float amount;
+	while (true) {
+		prompt_storable_input(buff_amount, 50, L"Amount to transfer");
+		errno = 0;
+		amount = wcstof(buff_amount, NULL);
+		if (amount == 0.0f) { // wcstof returns 0.0f on error (awful decision btw, 
+		        	      // cause what if trying to actually parse "0.0f" to float
+			log_warning(L"Can't parse tha number, try again...\n");
+			continue;
+		} else if ( errno == ERANGE) {
+			log_warning(L"Can't represent value, try again...\n ");
+			continue;
+		} else {
+			break;
+		}
+	}
+
+	if (amount > src_acc->balance) {
+		log_warning(L"Can't transfer more money than you have, dummy\n");
+		log_warning(L"Returning to menu...");
+		return;
+	}
+
+	float new_src_balance = src_acc->balance - amount;
+	memcpy(&src_acc->balance, &new_src_balance, sizeof(float));
+	dst_acc.balance += amount;
+
+
+	Account *rs_persist_src = csv_save_acc(src_acc);
+	if (rs_persist_src == NULL) {
+		log_error(L"Unable to transfer money, try again later...\n");
+		float prev_src_balance = src_acc->balance + amount;
+		memcpy(&src_acc->balance, &prev_src_balance, sizeof(float));
+		// dst_acc->balance -= amount; ON STACK
+		return;
+	}
+	Account *rs_persist_dst = csv_save_acc(&dst_acc);
+	if (rs_persist_dst == NULL) {
+		log_error(L"Unable to transfer money, try again later...\n");
+		float prev_src_balance = src_acc->balance + amount;
+		memcpy(&src_acc->balance, &prev_src_balance, sizeof(float));
+		//dst_acc->balance -= amount; ON STACK
+		return;
+	}
+	log_info(L"Successfully transfered money!\n");
 }
 
 /*
 * 
 * returns true if successfully logged in, false otherwise
+*
 * */
+bool acc_login(Account *acc) {
 
-bool acc_login(Account *crrnt_acc) {
-
-	Account acc;
-	acc_prompt_credentials(&acc);
+	Account credentials_acc;
+	prompt_storable_input(credentials_acc.email, ACC_EMAIL_SIZE, L"Email");
+	prompt_storable_input(credentials_acc.password, ACC_PASSWORD_SIZE, L"Password");
+	
 	int num_accs = csv_count_accs();
 	bool authd = false;
 
@@ -112,21 +195,14 @@ bool acc_login(Account *crrnt_acc) {
 	}
 
 	for (int i = 0; i < num_accs; i++) {
-
-		Account curr_acc = accs[i];
-		bool same_email = wcscmp(curr_acc.email, acc.email) == 0;
-		bool same_password = wcscmp(curr_acc.password, acc.password) == 0;
+		Account iter_acc = accs[i];
+		bool same_email = wcscmp(iter_acc.email, credentials_acc.email) == 0;
+		bool same_password = wcscmp(iter_acc.password, credentials_acc.password) == 0;
 
 		if (same_email && same_password) {
-			
-			// set crrnt_acc with logged in account values and break loop
-
-			wcsncpy(crrnt_acc->email, acc.email, ACC_EMAIL_SIZE);
-
-			float *heap_balance = malloc(sizeof(float));
-			heap_balance = &acc.balance;
-			crrnt_acc->balance = *heap_balance; // need to free() when logging out
-
+			wcsncpy(acc->email, iter_acc.email, ACC_EMAIL_SIZE);
+			wcsncpy(acc->password, iter_acc.password, ACC_PASSWORD_SIZE); // INSECURE AS HELL
+			memcpy(&acc->balance, &iter_acc.balance, sizeof(float));
 			authd = true;
 			break; // learned today that you can 
 			       // also break for loops, what the flip
@@ -140,46 +216,34 @@ bool acc_login(Account *crrnt_acc) {
 
 
 /*
-* returns true if account exists in CSV file, false otherwise
-*
-* */
-static bool acc_exists(Account *acc) {
-
-	int num_accs = csv_count_accs();
-	Account accs[num_accs];
-
-
-}
-
-/*
-* 	PENDING: CHECK FOR DUPLICATED EMAILS while registering
-*
-*
+* Registers an account to the .csv file only if
+* provided email isn't registered yet 
 */
-
 bool acc_register(Account *acc) {
 
 	wprintf(L"------------------------------------------------------\n");
 	wprintf(L"Account Registration\n");
 	bool registered = false;
 
-	acc_prompt_credentials(acc);
-
-	FILE *accounts;
-	accounts = fopen("accounts.csv", "a");
-	if (accounts == NULL) {
-		log_error(L"Couldn't open accounts file\n");
-		return registered;
+	while (true) {
+		prompt_storable_input(acc->email, ACC_EMAIL_SIZE, L"Email");
+		if (acc_exists_by_email(acc->email)) {
+			log_warning(L"Can't use %ls, cause another account is using it\n", acc->email);
+			continue;
+		} else {
+			break;
+		}
 	}
 
-	errno = 0;
-	int appnd_rs = fwprintf(accounts, L"%ls,%ls,%.2f,\n", acc->email, acc->password, 0.0);
-	if(appnd_rs < 0) {
-		log_error(L"Couldn't write data to accounts file\n");
-		return registered;
+	prompt_storable_input(acc->password, ACC_EMAIL_SIZE, L"Password");
+	Account *rs_save = csv_save_acc(acc);
+
+	if (rs_save != NULL) {
+		registered = true;
+	} else {
+		log_error(L"Couldn't register account, try again later...\n");
+		return false;
 	}
-	fclose(accounts);
-	registered = true;
 	return registered;
 }
 

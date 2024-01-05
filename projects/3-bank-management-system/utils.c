@@ -38,7 +38,7 @@ bool iswsblank(wchar_t *wcs) {
 * 	- a pointer to the recently assigned buff
 *
 */
-wchar_t* prompt_wchar(wchar_t *buff, int size) {
+wchar_t* prompt_wcs(wchar_t *buff, int size) {
 	errno = 0;
 	wchar_t *tmpbuff = fgetws(buff, size, stdin);
 	if (tmpbuff == NULL) { 
@@ -65,8 +65,8 @@ wchar_t* prompt_wchar(wchar_t *buff, int size) {
 	//	
 	//
 	tmpbuff[wcslen(tmpbuff) - 1] = L'\0';
-	//wprintf(L"%ls", tmpbuff);
-	return tmpbuff;
+	return tmpbuff; // at this point fgetws already set 
+			// tmpbuff to either NULL or a valid pointer
 }
 
 /*
@@ -112,6 +112,32 @@ bool prompt_option(int *opt) {
 			log_warning(L"Invalid option, try entering a number...\n");
 		}
 		return success;
+	}
+
+}
+
+/*
+* Propmts user for input until enters a valid value to
+* persist/store in .csv file. It then assigns that into buff argument
+* It uses 'label' param to prompt for input and log msgs
+*
+*/
+void prompt_storable_input(wchar_t* buff, int size, wchar_t* label) {
+	bool valid = false;
+	while (true) {
+		do { wprintf(L"%ls: ", label); } 
+		while (prompt_wcs(buff, size) == NULL);
+
+		if (wcschr(buff, L',') != NULL) {
+			log_warning(L"%ls can't contain commas(,), use dots(.) instead\n", label);
+			continue;
+		} else if (iswsblank(buff)) {
+			log_warning(L"%ls can't be blank, try again...\n", label);
+			continue;
+		} else {
+			valid = true;
+			break;
+		}
 	}
 
 }
