@@ -12,19 +12,20 @@
 
 /*
  * 
- * Bank CLI tool that manages bank data from an EMPLOYESS persective
+ * Kinda basic bank CLI tool that manages bank data from accounts
  * 	- NOTES:
- * 		- For future projects, need to learn to
- * 		read from a file format (csv, json, db, whatever)
- * 		to make persistence more flexible;
- *
- *	- Features:
+ * 		- accounts.csv should
+ * 			- be comma separated
+ * 			- first line should be name of columns 
+ * 			- one record per line
+ *	- FEATURES:
  *		- Login Functionality -> DONE
  *			- credentials not stored securely btw
  *		- Account management
  *			- Create account -> DONE
  *			- Delete account -> PENDING
  *		- Able to transfer money to accounts -> ON_IT
+ *			- current bug when persisting accounts updated
  *		- Check balance of account -> DONE
  *				
  * */
