@@ -14,8 +14,9 @@ typedef struct {
 
 void acc_clear(Account *acc);
 void acc_transfer(Account *acc);
+void acc_logout(Account *acc);
+bool acc_login(Account *acc);
 bool acc_register(Account *acc);
-bool acc_login();
 
 #endif 
 

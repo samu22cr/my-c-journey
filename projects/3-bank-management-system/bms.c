@@ -46,8 +46,8 @@ static void menu_logged(Account *acc) {
 	wprintf(L"-1.Help		---	print this menu\n");
 	wprintf(L"0.Exit		---	leave this program\n");
 	wprintf(L"1.Log out		---	end this session\n");
-	wprintf(L"2.Transfer money 	---	transference\n");
-	wprintf(L"3.Check balance 	---	money money money\n");
+	wprintf(L"2.Transfer		---	transference\n");
+	wprintf(L"3.Balance 		---	check your balance\n");
 }
 
 
@@ -75,12 +75,10 @@ int main(void)  {
 					menu_logged(&crrnt_acc);
 					break;
 				case 0:
-					acc_clear (&crrnt_acc); // necessary???
-					wprintf(L"Bye bye...\n");
 					exit(EXIT_FAILURE);
 					break;
 				case 1:
-					acc_clear(&crrnt_acc);
+					acc_logout(&crrnt_acc);
 					session = false;
 					menu_landing();
 					break;
@@ -105,11 +103,16 @@ int main(void)  {
 					exit(EXIT_FAILURE);
 					break;
 				case 1:
-					session = acc_login();
+					session = acc_login(&crrnt_acc);
+					if (session) {
+						menu_logged(&crrnt_acc);
+					} 
 					break;
 				case 2:
 					session = acc_register(&crrnt_acc);
-					menu_logged(&crrnt_acc);
+					if (session) {
+						menu_logged(&crrnt_acc);
+					}
 					break;
 				default:
 					log_warning(L"Invalid option number!\n");
