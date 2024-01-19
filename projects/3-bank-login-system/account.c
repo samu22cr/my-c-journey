@@ -2,18 +2,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <errno.h>
 #include <wchar.h>
-#include <wctype.h>
-#include <wctype.h>
 #include <string.h>
 
 #include "utils.h"
 #include "log.h"
 #include "account.h"
 #include "csv.h"
-
-
 
 
 /*
