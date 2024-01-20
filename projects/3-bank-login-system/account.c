@@ -10,7 +10,6 @@
 #include "account.h"
 #include "csv.h"
 
-
 /*
 *
 * Sets Account struct fields to zero/empty/NULL values

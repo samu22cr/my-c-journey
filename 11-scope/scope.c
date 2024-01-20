@@ -1,7 +1,6 @@
-#include <stdio.h>
 
 
-int main123(void) {
+void main123(void) {
 
 	// FOR-LOOP SCOPE---------------------------------------------------
 

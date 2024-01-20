@@ -1,12 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <wctype.h>
 #include <wchar.h>
 #include <errno.h>
 
 #include "log.h"
 #include "account.h"
-
 
 /*
 *

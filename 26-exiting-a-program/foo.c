@@ -10,6 +10,10 @@ void on_quick_exit_2(void) { printf("Quick exit handler 2 called!\n"); }
 
 int main(void) {
 
+//	2 possible exit return values
+//		EXIT_FAILURE
+//		EXIT_SUCCCESS
+
 //	exit() -------------------------------------------------------
 //	A call to atexit() with the handler function name register it.
 //	You can register multiple exit handlers, and they’ll be called in 

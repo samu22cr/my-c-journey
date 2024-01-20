@@ -114,7 +114,7 @@ int main(void) {
 //	wcscmp() 	Compare strings lexicographically.
 //	wcsncmp() 	Compare strings lexicographically, length-limited.
 //	wcscoll() 	Compare strings in dictionary order by locale.
-//	wmemcmp() 	Compare memory lexicographically.
+//	wmemcmp() 	Compare memory lexicograhically.
 //	wcsxfrm() 	Transform strings into versions such that wcscmp() behaves like wcscoll()165.
 
 
