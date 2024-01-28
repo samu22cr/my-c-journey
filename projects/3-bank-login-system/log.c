@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <wchar.h>
-#include <wctype.h>
 
 
 enum LogLevel {

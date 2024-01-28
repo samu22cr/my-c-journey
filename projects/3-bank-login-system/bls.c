@@ -1,18 +1,14 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <locale.h>
-#include <errno.h>
 #include <wchar.h>
-#include <wctype.h>
-
 #include "log.h"
 #include "utils.h"
 #include "account.h"
 
 /*
  * 
- * Kinda basic bank CLI tool that manages bank data from accounts
+				 * Kinda basic bank CLI tool that manages bank data from accounts
  * 	- NOTES:
  * 		- accounts.csv should
  * 			- be comma separated
@@ -25,7 +21,6 @@
  *			- Create account -> DONE
  *		- Check balance of account -> DONE
  * */
-
 
 
 static void menu_landing(void) {
