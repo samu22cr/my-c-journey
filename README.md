@@ -3,3 +3,4 @@ Just a repo to document my C journey
 
 ## Resources used to learn
 - https://beej.us/guide/bgc/
+- https://beej.us/guide/bgnet/
